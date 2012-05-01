@@ -3,9 +3,14 @@ SeattleLight
 Arduino code for Rebar Group's SeattleLight project - http://rebargroup.org/  
 by Matt Ganucheau , Mary Franck and Benjamin Chun
 
-Uses libraries:  
+Libraries Used:  
 WiFlyHQ - https://github.com/harlequin-tech/WiFlyHQ  
 LPD8806 - https://github.com/adafruit/LPD8806  
+
+Files:   
+hub             - code for the sequencing hub  
+planter         - code for each planter  
+lights_com_test - used to test the LPD8806 over a direct serial connection  
 
 ------------------------------  
 Commands for the Planters  
