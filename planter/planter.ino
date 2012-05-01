@@ -7,7 +7,6 @@
 #include <SoftwareSerial.h>
 #include "LPD8806.h"
 #include "SPI.h"
-SoftwareSerial wifiSerial(8,9);
 
 int  myID           = 9;
 
@@ -16,35 +15,38 @@ const char* unit[]  = {
   "169.254.1.0", "169.254.1.1", "169.254.1.2", "169.254.1.3",
   "169.254.1.4", "169.254.1.5", "169.254.1.6", "169.254.1.7",
   "169.254.1.8", "169.254.1.9", "169.254.1.10", "169.254.1.11"};
-int sensorPins[]  = { 
-  2, 3, 4, 5, 6, 7, 10, 12 };
+int sensorPins[]  = { 2, 3, 4, 5, 6, 7, 10, 12 };
+
+// LEDs
+int R   = 0;
+int G   = 0;
+int B   = 100;
+int dir = 0.5;
+int tmpclock  = 1;
+int totalLEDs = 219;
+int beginning = 0; 
+int ending    = totalLEDs;
+int sPeed     = 4;
 int dataPin   = 11;   
 int clockPin  = 13;
-int effectCounter   = 0;
-int totalLEDs = 219;
-int hubTimeOut = 5000; // if nothing from hub in this many milliseconds, soloscreensaver
-char cmd;
-char ch;
-int spanSize[8];
-int lastSensorValue[8];
+LPD8806 strip = LPD8806(totalLEDs, dataPin, clockPin);
+int hubTimeOut      = 5000; // if nothing from hub in this many milliseconds, soloscreensaver
 int twinkIndex      = 0;
+float brightness    = 1;
+int effectCounter   = 0;
 const int numTwinks = 40;
-int num;
 int rndPx[numTwinks];
 int pxVal[numTwinks];
-int R = 0;
-int G = 0;
-int B = 100;
-int lastSend = 0;
-int lastRec  = 0;
-int beginning = 0; 
-int ending = totalLEDs;
-int sPeed = 4;
-int tmpclock = 1;
-float brightness = 1;
-int dir = 0.5;
 
-LPD8806 strip = LPD8806(totalLEDs, dataPin, clockPin);
+// Communication
+SoftwareSerial wifiSerial(8,9);
+int lastSend  = 0;
+int lastRec   = 0;
+char cmd;
+char ch;
+int num; 
+int spanSize[8];
+int lastSensorValue[8];
 
 WiFly wifly;
 
@@ -122,10 +124,14 @@ void loop()
     lastRec = millis();
   }
 
+  serialFilter();
+
+  // Incase the hub has not checked in a while 
   if((millis() - lastRec) > hubTimeOut) {
     cmd = 'M';
   }
   
+  // Fade up / down 
   if (dir == 1) {
      brightness += 0.001;
         if (brightness > 1)
@@ -135,7 +141,6 @@ void loop()
         if (brightness < 0)
           dir = 0;
   }
-
 
   switch(cmd)
   {
@@ -165,14 +170,11 @@ void loop()
     break;
   }
   
+  strip.show();
 
   tmpclock++; 
   if (tmpclock % sPeed == 0)
     effectCounter++;
-
-  strip.show();
-  serialFilter();
- 
 }
 
 //--------------------------------------------------------------
@@ -188,7 +190,7 @@ void serialFilter()
     ch == 'O' ||
     ch == 'W' ||
     ch == 'F' ||
-	ch == 'M')
+    ch == 'M')
     cmd = ch;
 
   if (ch == 'U')
@@ -280,13 +282,15 @@ void clearStrip()
   }
 }
 
-void setPixelSpan(int pFirst, int pLast, int r, int g, int b) {
+void setPixelSpan(int pFirst, int pLast, int r, int g, int b) 
+{
   for(int i = pFirst; i<=pLast; i++) {
     strip.setPixelColor(i, strip.Color(r,g,b));
   }
 }
 
-void soloscreensaver() {
+void soloscreensaver() 
+{
   for (int i=0; i < strip.numPixels(); i++) {
     strip.setPixelColor(i,0);
   }
@@ -298,7 +302,7 @@ void soloscreensaver() {
     if(ss > 0) {
       int loc = n*(totalLEDs/8) + 9;
       if(n%2 == 1) loc += 9;
-      setPixelSpan(loc-ss, loc+ss, 127, 0, 0);
+      setPixelSpan(loc-ss, loc+ss, 0, 0, 100);
       spanSize[n]--;
     }
   }
@@ -311,7 +315,7 @@ void solidColor()
   g = G * brightness;
   b = B * brightness;
   
-  for (int i=0; i < strip.numPixels(); i++) {
+  for(int i = beginning; i<=ending; i++) {
     strip.setPixelColor(i,r,g,b);
   }
 }
@@ -326,7 +330,6 @@ void cycle()
 
 void twinkle() 
 { 
-  ///uint32_t c
   int tic = effectCounter%numTwinks;
   if(tic < 1){ 
     twinkIndex++; 
@@ -408,12 +411,8 @@ void cCycle()
   }
 }
 
-
-/* Helper functions */
-
 //Input a value 0 to 384 to get a color value.
 //The colours are a transition r - g -b - back to r
-
 uint32_t Wheel(uint16_t WheelPos)
 {
   byte r, g, b;
@@ -441,7 +440,8 @@ uint32_t Wheel(uint16_t WheelPos)
   return(strip.Color(r,g,b));
 }
 
-boolean diffSensors() {
+boolean diffSensors()
+{
   boolean diff = false;
   for (int n=0; n<8; n++) {
     if(digitalRead(sensorPins[n]) != lastSensorValue[n]) {
@@ -453,7 +453,8 @@ boolean diffSensors() {
 }
 
 
-void sendSensors(){
+void sendSensors()
+{
   wifly.print(convertIdToLetter(myID));
   for (int n=0; n<8; n++) {
     wifly.print(lastSensorValue[n]);
