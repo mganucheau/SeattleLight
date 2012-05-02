@@ -19,7 +19,7 @@ Z - Clears the strip
 H - Color Chase Mode  
 W - Color Wipe Mode  
 C - Rainbow Mode  
-T - Tinkle Mode  
+T - Twinkle Mode  
 O - Solid Color Mode  
 M - Screensaver Mode  
 
