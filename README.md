@@ -10,7 +10,7 @@ LPD8806 - https://github.com/adafruit/LPD8806
 Files:   
 hub             - code for the sequencing hub  
 planter         - code for each planter  
-lights_com_test - used to test the LPD8806 over a direct serial connection  
+lights_com_test - used to test the LPD8806 over serial  
 
 ------------------------------  
 Commands for the Planters  
