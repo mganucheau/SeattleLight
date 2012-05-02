@@ -1,7 +1,7 @@
 SeattleLight
 ============
 Arduino code for Rebar Group's SeattleLight project - http://rebargroup.org/  
-by Matt Ganucheau , Mary Franck and Benjamin Chun
+by Matt Ganucheau, Mary Franck and Benjamin Chun
 
 Libraries Used:  
 WiFlyHQ - https://github.com/harlequin-tech/WiFlyHQ  
@@ -43,14 +43,10 @@ N2 - Second Corner
 N3 - Third Corner  
 N4 - Last Corner  
 
-
+------------------------------  
 Example hub code for targeting planters:
 
-
-
-void cycleUnits() {
     count++;
-
     wifly.setHost(unit[count], 2000);
     wifly.write("H");
 
@@ -61,11 +57,10 @@ void cycleUnits() {
        wifly.write("T");  // set to twinkle mode                        
        wifly.write("U");  // fade up the brightness
      }  
-   }
-
-   if(count > 11)
+    }
+    
+    if(count > 11)
      count = 1;
 
-}
 
 
