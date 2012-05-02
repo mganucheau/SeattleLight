@@ -10,7 +10,7 @@ SoftwareSerial wifiSerial(8,9);
 WiFly wifly;
 
 const char mySSID[] = "SeattleLight";
-const char* unit[]      = {
+const char* unit[]  = {
   "169.254.1.0", "169.254.1.1", "169.254.1.2", "169.254.1.3",
   "169.254.1.4", "169.254.1.5", "169.254.1.6", "169.254.1.7",
   "169.254.1.8", "169.254.1.9", "169.254.1.10", "169.254.1.11"};
@@ -83,7 +83,7 @@ uint32_t count=0;
 
 void loop()
 {
-  annoyUnits();
+  cycleUnits();
   parseSensorData();
 
   if(sumSensorValues() != lastSensorSum) {
@@ -104,7 +104,6 @@ int sumSensorValues() {
   return sum;
 }
 
-// sorry this is ugly but hey it mostly works
 void parseSensorData() {
   if (wifly.available() > 0) {
     char x = wifly.read();
@@ -126,17 +125,19 @@ void parseSensorData() {
 }
 
 // steps through the planters sending a message
-void annoyUnits() {
+void cycleUnits() {
   if ((millis() - lastSend) > 2000) {
     count++;
 
     wifly.setHost(unit[count], 2000);
     wifly.write("H");
 
-    for (int n=1; n<=10; n++) {
+    for (int n=1; n<=11; n++) {
      if (n != count) {
        wifly.setHost(unit[n], 2000);
-       wifly.write("R");
+       wifly.write("Z1"); // set brightness to 1
+       wifly.write("T");  // set to twinkle mode                        
+       wifly.write("U");  // fade up the brightness
      }  
    }
 

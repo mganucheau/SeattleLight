@@ -42,3 +42,30 @@ N1 - First Corner
 N2 - Second Corner  
 N3 - Third Corner  
 N4 - Last Corner  
+
+
+Example hub code for targeting planters:
+
+
+
+void cycleUnits() {
+    count++;
+
+    wifly.setHost(unit[count], 2000);
+    wifly.write("H");
+
+    for (int n=1; n<=11; n++) {
+     if (n != count) {
+       wifly.setHost(unit[n], 2000);
+       wifly.write("Z1"); // set brightness to 1
+       wifly.write("T");  // set to twinkle mode                        
+       wifly.write("U");  // fade up the brightness
+     }  
+   }
+
+   if(count > 11)
+     count = 1;
+
+}
+
+
